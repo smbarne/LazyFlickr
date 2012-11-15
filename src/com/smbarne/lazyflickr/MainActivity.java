@@ -1,4 +1,4 @@
-package com.example.lazyflickr;
+package com.smbarne.lazyflickr;
 
 import android.os.Bundle;
 import android.app.Activity;
