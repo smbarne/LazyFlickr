@@ -1,7 +1,16 @@
 #################
+## Android
+#################
+
+R.java
+BuildConfig.java
+
+#################
 ## Eclipse
 #################
 
+project.properties
+proguard-project.txt
 *.pydevproject
 .project
 .metadata
