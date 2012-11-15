@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="Title_Text_Size">24dp</dimen>
+    <dimen name="refresh_padding">25dp</dimen>
+</resources>
