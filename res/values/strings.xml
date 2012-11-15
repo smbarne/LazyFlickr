@@ -6,5 +6,7 @@
     <string name="menu_settings">Settings</string>
     <string name="refresh_button_text">Refresh</string>
     <string name="initial_list_title">Loading Flickr Feed...</string>
+    <string name="stub_image_description">Loading Thumbnail</string>
+    <string name="item_starting_text">Loading Image...</string>
 
 </resources>
