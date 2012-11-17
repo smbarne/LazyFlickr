@@ -2,29 +2,34 @@ package com.smbarne.lazyflickr;
 
 import android.os.Bundle;
 import android.app.Activity;
+import android.app.ListActivity;
+import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.ListView;
+import android.widget.TextView;
 
-public class MainActivity extends Activity {
+/**
+ *  The MainActivity of LazyFlickr. 
+ */
+public class MainActivity extends ListActivity {
 	
-	ListView ImageList;
-	LazyFlickrViewAdapter ListAdapter;
-
+	//ListView ImageList;
+	LazyFlickrViewAdapter LazyListAdapter;
+	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);          
         setContentView(R.layout.activity_main);
         
-        ImageList = (ListView)findViewById(R.id.imageListView);
-        
-        String[] sample_data = {"One","Two","Three"};
-        ListAdapter = new LazyFlickrViewAdapter(this, sample_data);
-        ImageList.setAdapter(ListAdapter);
-        
-        //Button refreshButton =(Button)findViewById(R.id.refreshButton);
-        //refreshButton.setOnClickListener(RefreshDataFeed);
+        LazyListAdapter = new LazyFlickrViewAdapter(this);
+        setListAdapter(LazyListAdapter);
+
+        RefreshData();        
     }
 
     @Override
@@ -34,12 +39,16 @@ public class MainActivity extends Activity {
         return true;
     }
     
-    public OnClickListener RefreshDataFeed=new OnClickListener(){
-		@Override
-		public void onClick(View v) {
-			// TODO Auto-generated method stub
-			
-		}
-    };
-    
+	public void onRefreshMenuClick(final MenuItem item) {
+		RefreshData();
+	}  
+	
+	/**
+	 * Reload feed data from Flickr. 
+	 */
+	public void RefreshData()
+	{
+	   FlickrDataLoader loadXMLData = new FlickrDataLoader(LazyListAdapter, this);
+       loadXMLData.execute("http://api.flickr.com/services/feeds/photos_public.gne?tags=boston&format=rss_200"); 	
+	}
 }

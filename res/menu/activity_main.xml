@@ -1,9 +1,10 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    
+	
 	<item android:id="@+id/refresh"
+	    android:onClick="onRefreshMenuClick"
 	    android:icon="@drawable/refresh"
 	    android:title="@string/refresh_button_text"
-	    android:showAsAction="always"/>
+	    android:showAsAction="ifRoom"/>
 
     <item
         android:id="@+id/menu_settings"
@@ -11,5 +12,5 @@
         android:showAsAction="collapseActionView"
         android:title="@string/menu_settings"
         android:icon="@drawable/settings"/>
-
+    
 </menu>

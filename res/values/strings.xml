@@ -8,5 +8,6 @@
     <string name="initial_list_title">Loading Flickr Feed...</string>
     <string name="stub_image_description">Loading Thumbnail</string>
     <string name="item_starting_text">Loading Image...</string>
+    <string name="loading_text">Loading Flickr Feed...</string>
 
 </resources>
