@@ -2,4 +2,5 @@
 <resources>
     <dimen name="Title_Text_Size">24dp</dimen>
     <dimen name="refresh_padding">25dp</dimen>
+    <dimen name="list_thumbnail_padding">5dp</dimen>
 </resources>

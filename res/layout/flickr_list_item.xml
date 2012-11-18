@@ -5,7 +5,12 @@
     android:layout_height="wrap_content"
     android:layout_margin="2dp"
     android:drawableLeft="@drawable/image_large"
+    android:drawablePadding="5dp"
+    android:ellipsize="middle"
     android:gravity="center_vertical"
+    android:height="75dp"
+    android:maxLines="1"
+    android:paddingLeft="5dp"
     android:text="@string/item_starting_text"
     android:textSize="20sp"
     android:typeface="sans" />

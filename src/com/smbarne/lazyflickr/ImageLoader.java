@@ -1,7 +1,6 @@
 package com.smbarne.lazyflickr;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.HashMap;
@@ -32,16 +31,7 @@ public class ImageLoader {
 		mThreadPool = Executors.newFixedThreadPool(ThreadCount);
 
 	    // Find or Create a directory to save cached images
-	    String sdState = android.os.Environment.getExternalStorageState();
-	    if (sdState.equals(android.os.Environment.MEDIA_MOUNTED)) {
-	      File sdDir = android.os.Environment.getExternalStorageDirectory();    
-	      cacheDir = new File(sdDir,"data/lazyflickr/images");
-	    }
-	    else
-	      cacheDir = context.getCacheDir();
-
-	    if(!cacheDir.exists())
-	      cacheDir.mkdirs();
+		cacheDir = Utilities.GetOrCreateCacheDir(context, "data/lazyflickr/images");
 	}
 	
 	/**
@@ -109,31 +99,6 @@ public class ImageLoader {
 		ImageData imageToLoad = new ImageData(url, iv);
 		mThreadPool.submit(new LoadImage(imageToLoad));		
 	}
-    
-    /**
-     * Cache a bitmap to a location specified by {@value f}.  The bitmap is cached
-     * in PNG format at 80% quality.
-     * 
-     * @param bitmap	The bitmap to cache
-     * @param f			The file location
-     */
-    private void writeFile(Bitmap bitmap, File f) {
-	  FileOutputStream out = null;
-
-	  try {
-	    out = new FileOutputStream(f);
-	    bitmap.compress(Bitmap.CompressFormat.PNG, 80, out);
-	  } catch (Exception e) {
-	    e.printStackTrace();
-	  }
-	  finally { 
-	    try {  	
-	    	if (out != null )
-	    		out.close();
-	    	} 
-	    catch(Exception ex) {} 
-	  }
-	}
 
     /**
      * A convenience method to set the left composite bitmap image on a TextView
@@ -142,7 +107,6 @@ public class ImageLoader {
      * @param textview	TextView to apply the composite image to.
      */
     public void SetTextViewLeftCompositeImage(Bitmap bitmap, TextView textview) {
-		
 		BitmapDrawable thumbnail = new BitmapDrawable(((Activity)textview.getContext()).getResources(), bitmap);
 		if (thumbnail != null)
 			textview.setCompoundDrawablesWithIntrinsicBounds(thumbnail , null, null, null);
@@ -233,28 +197,23 @@ public class ImageLoader {
         	String filename = String.valueOf(url.hashCode());
     	  	File f = new File(cacheDir, filename);
     	  	Bitmap bitmap = null;
-
-    	  	// Attempt to load from SD card Cache
-    		  try {
-    			  // Note: scaling might be necessary to make things look better.  Flickr
-    			  // thumbnails are 75x75 px.
-    			  /*BitmapFactory.Options opts = new BitmapFactory.Options();
-    			  opts.inSampleSize = 2;
-    			  bitmap = BitmapFactory.decodeFile(f.getAbsolutePath(), opts);*/
-    			  
-    			  bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
-    		  } catch (Exception e) {
-    		    e.printStackTrace();
-    		  }
+    	  	Context context = null;
     	  	
-    	  	if(bitmap != null)
-    	  		return bitmap;
+        	if (mImageToLoad.getTextView() != null)
+        		context = mImageToLoad.getTextView().getContext();
+        	else if (mImageToLoad.getImageView() != null)
+        		context = mImageToLoad.getImageView().getContext();
+    	  	
+        	//Find the correct scale value. It should be the power of 2.
+    		final float density = context.getResources().getDisplayMetrics().density;
+    		final int REQUIRED_SIZE = (int) (64 * density + 0.5f);
 
             // Attempt to Load from Web
             try {
             	bitmap = BitmapFactory.decodeStream((InputStream) new URL(url)
                         .getContent());
-            	writeFile(bitmap, f);
+            	bitmap = Bitmap.createScaledBitmap(bitmap, REQUIRED_SIZE, REQUIRED_SIZE, true);
+            	Utilities.writeBitmapToFile(bitmap, f);
             	return bitmap;
             } catch (Exception e) {
             	// TODO: User notification - couldn't load, is Internet enabled?

@@ -1,16 +1,10 @@
 package com.smbarne.lazyflickr;
 
 import android.os.Bundle;
-import android.app.Activity;
 import android.app.ListActivity;
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Window;
-import android.widget.ListView;
-import android.widget.TextView;
 
 /**
  *  The MainActivity of LazyFlickr. 
@@ -48,7 +42,10 @@ public class MainActivity extends ListActivity {
 	 */
 	public void RefreshData()
 	{
-	   FlickrDataLoader loadXMLData = new FlickrDataLoader(LazyListAdapter, this);
-       loadXMLData.execute("http://api.flickr.com/services/feeds/photos_public.gne?tags=boston&format=rss_200"); 	
+	   String[] tags = {"Boston"};
+	   FlickrLoader loadXMLData = new FlickrLoader(LazyListAdapter, this);
+	   loadXMLData.LoadFeed(tags);
+	   //loadXMLData.LoadFeed("http://api.flickr.com/services/feeds/photos_public.gne?tags=boston&format=rss_200");
+       //loadXMLData.execute("http://api.flickr.com/services/feeds/photos_public.gne?tags=boston&format=rss_200"); 	
 	}
 }
