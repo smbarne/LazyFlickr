@@ -14,36 +14,37 @@ import android.widget.TextView;
  *  An adapter that converts a list of {@link FlickrItem}s for display
  *  in a ListView. 
  */
-public class LazyFlickrViewAdapter extends BaseAdapter {
+public class LazyListViewAdapter extends BaseAdapter {
     
-    private Activity mActivity;
-    
-    // TODO: populate this from SD cache if available
+    private Activity mActivity;    
     private ArrayList<FlickrItem> mData = new ArrayList<FlickrItem>();
-    
     private final ImageLoader mImageLoader;
     
-    public LazyFlickrViewAdapter(Activity activity)
+    public LazyListViewAdapter(Activity activity, ImageLoader imageLoader)
     {
     	mActivity = activity;
-    	mImageLoader = new ImageLoader(activity.getApplicationContext());
+    	mImageLoader = imageLoader;
     }
 
+    @Override
     public int getCount()
     {
         return mData.size();
     }
 
+    @Override
     public Object getItem(int position)
     {
         return position;
     }
 
+    @Override
     public long getItemId(int position)
     {
         return position;
     }
     
+    @Override
     public View getView(int position, View convertView, ViewGroup parent)
     {
         View inflatedView = convertView;
@@ -60,17 +61,6 @@ public class LazyFlickrViewAdapter extends BaseAdapter {
         mImageLoader.LoadImage(mData.get(position).getThumbURL(), title);
         
         return inflatedView;
-    }
-    
-    public ArrayList<FlickrItem> GetData()
-    {
-    	return mData;
-    }
-
-	// TODO
-    public void appendData(ArrayList<FlickrItem> data)
-    {
-    	notifyDataSetChanged();
     }
     
     public void setData(ArrayList<FlickrItem> data)

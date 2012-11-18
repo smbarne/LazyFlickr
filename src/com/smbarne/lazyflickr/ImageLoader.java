@@ -6,6 +6,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -26,11 +27,25 @@ public class ImageLoader {
     private File cacheDir;
     private HashMap<String, Bitmap> mMemoryCache = new HashMap<String, Bitmap>(); 
     ExecutorService mThreadPool;
+	private volatile static ImageLoader instance;
+
+	public static ImageLoader getInstance() {
+		if (instance == null) {
+			synchronized (ImageLoader.class) {
+				if (instance == null) {
+					instance = new ImageLoader();
+				}
+			}
+		}
+		return instance;
+	}
+
+	protected ImageLoader() {
+	}
 	
-	ImageLoader(Context context)
+	public void init(Context context)
 	{
 		mThreadPool = Executors.newFixedThreadPool(ThreadCount);
-
 	    // Find or Create a directory to save cached images
 		cacheDir = Utilities.GetOrCreateCacheDir(context, "data/lazyflickr/images");
 	}
@@ -66,10 +81,7 @@ public class ImageLoader {
 	public void LoadImage(String url, ImageView iv)
 	{
 		if (mMemoryCache.containsKey(url))
-		{
-			iv.setImageBitmap(mMemoryCache.get(url));
-			return;
-		}
+			SetImageViewDrawable(mMemoryCache.get(url), iv);
 		else
 			queueImageLoad(url, iv);
 	}
@@ -105,13 +117,25 @@ public class ImageLoader {
      * A convenience method to set the left composite bitmap image on a TextView
      * 
      * @param bitmap 	Bitmap to create a {@link Drawable} from
-     * @param textview	TextView to apply the composite image to.
+     * @param textView	TextView to apply the composite image to.
      */
-    public void SetTextViewLeftCompositeImage(Bitmap bitmap, TextView textview) {
-		BitmapDrawable thumbnail = new BitmapDrawable(((Activity)textview.getContext()).getResources(), bitmap);
+    public void SetTextViewLeftCompositeImage(Bitmap bitmap, TextView textView) {
+    	final float density = textView.getContext().getResources().getDisplayMetrics().density;
+		final int REQUIRED_SIZE = (int) (64 * density + 0.5f);
+
+        bitmap = Bitmap.createScaledBitmap(bitmap, REQUIRED_SIZE, REQUIRED_SIZE, true);
+    	
+		BitmapDrawable thumbnail = new BitmapDrawable(((Activity)textView.getContext()).getResources(), bitmap);
 		if (thumbnail != null)
-			setLeftCompositeDrawableWithFade(textview, thumbnail);
+			setLeftCompositeDrawableWithFade(textView, thumbnail);
 	}
+    
+    public void SetImageViewDrawable(Bitmap bitmap, ImageView imageView)
+    {
+    	BitmapDrawable imageDrawable = new BitmapDrawable(((Activity)imageView.getContext()).getResources(), bitmap);
+		if (imageDrawable != null)
+			setImageDrawableWithFade(imageView, imageDrawable);
+    }
     
     /**
      * 
@@ -150,7 +174,8 @@ public class ImageLoader {
     	 if (currentDrawable != null) 
     	 {
 			  Drawable[] arrayDrawable = new Drawable[2];
-			  arrayDrawable[0] = currentDrawable;
+			  //arrayDrawable[0] = currentDrawable;
+			  arrayDrawable[0] = imageView.getContext().getResources().getDrawable(R.drawable.image_large);
 			  arrayDrawable[1] = drawable;
 			  
 			  TransitionDrawable transitionDrawable = new TransitionDrawable(arrayDrawable);
@@ -248,22 +273,21 @@ public class ImageLoader {
         	String filename = String.valueOf(url.hashCode());
     	  	File f = new File(cacheDir, filename);
     	  	Bitmap bitmap = null;
-    	  	Context context = null;
     	  	
-        	if (mImageToLoad.getTextView() != null)
-        		context = mImageToLoad.getTextView().getContext();
-        	else if (mImageToLoad.getImageView() != null)
-        		context = mImageToLoad.getImageView().getContext();
+    	  	// Attempt to load from SD card Cache
+    	  	try {
+    	  		bitmap = BitmapFactory.decodeFile(f.getAbsolutePath());
+    	  	} catch (Exception e) {
+    	  		e.printStackTrace();
+    	  	}
     	  	
-        	//Find the correct scale value. It should be the power of 2.
-    		final float density = context.getResources().getDisplayMetrics().density;
-    		final int REQUIRED_SIZE = (int) (64 * density + 0.5f);
+    	  	if(bitmap != null)
+    	  		return bitmap;
 
             // Attempt to Load from Web
             try {
             	bitmap = BitmapFactory.decodeStream((InputStream) new URL(url)
                         .getContent());
-            	bitmap = Bitmap.createScaledBitmap(bitmap, REQUIRED_SIZE, REQUIRED_SIZE, true);
             	Utilities.writeBitmapToFile(bitmap, f);
             	return bitmap;
             } catch (Exception e) {
@@ -298,7 +322,8 @@ public class ImageLoader {
         	if(mBitmap != null && mImageToLoad.getTextView() != null)
         		SetTextViewLeftCompositeImage( mBitmap, mImageToLoad.getTextView());
         	if(mBitmap != null && mImageToLoad.getImageView() != null)
-        		mImageToLoad.getImageView().setImageBitmap(mBitmap);
+        		SetImageViewDrawable(mBitmap, mImageToLoad.getImageView());
+        		//mImageToLoad.getImageView().setImageBitmap(mBitmap);
         }
     }
 }

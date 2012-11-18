@@ -1,6 +1,7 @@
 package com.smbarne.lazyflickr;
 
 import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.w3c.dom.Document;
@@ -8,7 +9,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.AsyncTask;
+import android.support.v4.view.PagerAdapter;
+import android.widget.Adapter;
 
 
 /**
@@ -17,21 +21,32 @@ import android.os.AsyncTask;
  * available.
  *
  */
-public class FlickrLoader	
+public class DataLoader implements Serializable	
 {
-	private final LazyFlickrViewAdapter mAdapter;
-	private final Activity mActivity;
-	
+	private static final long serialVersionUID = -5065727408815846209L;
     private File cacheDir;
-    private HashMap<String, ArrayList<FlickrItem>> mMemoryCache = new HashMap<String, ArrayList<FlickrItem>>(); 
-	
+    private HashMap<String, ArrayList<FlickrItem>> mMemoryCache = new HashMap<String, ArrayList<FlickrItem>>();
+	private volatile static DataLoader instance;
 
-	public FlickrLoader(LazyFlickrViewAdapter adapter, Activity activity) {
-		mAdapter = adapter;
-		mActivity = activity;
+	public static DataLoader getInstance() {
+		if (instance == null) {
+			synchronized (ImageLoader.class) {
+				if (instance == null) {
+					instance = new DataLoader();
+				}
+			}
+		}
+		return instance;
+	}
+	
+	protected DataLoader()
+	{
 		
+	}
+	
+	public void Init(Context context) {	
 		// Find or Create a directory to save cached feeds
-		cacheDir = Utilities.GetOrCreateCacheDir(mActivity.getApplicationContext(), "data/lazyflickr/feeds");
+		cacheDir = Utilities.GetOrCreateCacheDir(context, "data/lazyflickr/feeds");
 	}
 	
 	/**
@@ -41,21 +56,21 @@ public class FlickrLoader
 	 * 
 	 * @param tags	An array of tags to search query Flickr for.
 	 */
-	public void LoadFeed(String[] tags)
+	public void LoadFeed(String[] tags, Adapter adapter, PagerAdapter pagerAdapter, Activity activity)
 	{
-		FlickrWebLoader asyncWebLoad = null;
+		XMLDataLoader asyncWebLoad = null;
 		String tagstream = Utilities.StringArrayToCSV(tags);	
 	  	File f = new File(cacheDir, tagstream);
 		
 		if (mMemoryCache.containsKey(tagstream))
-			asyncWebLoad = new FlickrWebLoader(mAdapter, mActivity, mMemoryCache.get(tagstream));
+			asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, activity, mMemoryCache.get(tagstream));
 		else
 		{
-			ArrayList<FlickrItem> sd_items =  Utilities.deserializeFlickrItems(mActivity.getApplicationContext(), f);
+			ArrayList<FlickrItem> sd_items =  Utilities.deserializeFlickrItems(activity.getApplicationContext(), f);
 			if (sd_items.size() > 0)
-				asyncWebLoad = new FlickrWebLoader(mAdapter, mActivity, sd_items);				
+				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, activity, sd_items);				
 			else
-				asyncWebLoad = new FlickrWebLoader(mAdapter, mActivity, null);
+				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, activity, null);
 		}
 		
 		asyncWebLoad.execute(tags);
@@ -67,23 +82,42 @@ public class FlickrLoader
 	 *  processed from the XML feed.
 	 *
 	 */
-	public class FlickrWebLoader extends AsyncTask<String, Integer, ArrayList<FlickrItem>> {
-		private final LazyFlickrViewAdapter mAdapter;
+	public class XMLDataLoader extends AsyncTask<String, Integer, ArrayList<FlickrItem>> {
+		private final Adapter mAdapter;
+		private final PagerAdapter mPagerAdapter;
 		private final Activity mActivity;
 		ArrayList<FlickrItem> mItems;
 		private String mTagStream = "";
 	
-		public FlickrWebLoader(LazyFlickrViewAdapter adapter, Activity activity, ArrayList<FlickrItem> items) {
+		public XMLDataLoader(Adapter adapter, PagerAdapter pagerAdapter, Activity activity, ArrayList<FlickrItem> items) {
 			mAdapter = adapter;
+			mPagerAdapter = pagerAdapter;
 			mActivity = activity;
 			mItems = items;
+		}
+		
+		private void setData(ArrayList<FlickrItem> items)
+		{
+			if (mAdapter instanceof LazyListViewAdapter)
+			{
+				LazyListViewAdapter llva = (LazyListViewAdapter)mAdapter;
+				if (llva != null)
+					llva.setData(items);
+			}
+			
+			if (mPagerAdapter instanceof LazyViewPagerAdapter)
+			{
+				LazyViewPagerAdapter lvpa = (LazyViewPagerAdapter)mPagerAdapter;
+				if (lvpa != null)
+					lvpa.setData(items);
+			}
 		}
 		
 	    protected void onPreExecute() {
 	    	mActivity.setProgressBarIndeterminateVisibility(true);
 	    	
 	    	if (mItems != null)
-				mAdapter.setData(mItems);
+	    		setData(mItems);
 	    	    	
 			// Note: To be done after adding ActionBarSherlock or ActionBarCompatability
 	    	//MenuItem refresh = (MenuItem)mActivity.getActionBar().getCustomView().findViewById(R.id.refresh);
@@ -94,7 +128,7 @@ public class FlickrLoader
 		{
 			if (items != null)
 			{
-				mAdapter.setData(items);
+				setData(mItems);
 				
 				if (mTagStream != "")
 				{
