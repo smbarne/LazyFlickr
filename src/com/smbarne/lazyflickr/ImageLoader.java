@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.TransitionDrawable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -109,8 +110,58 @@ public class ImageLoader {
     public void SetTextViewLeftCompositeImage(Bitmap bitmap, TextView textview) {
 		BitmapDrawable thumbnail = new BitmapDrawable(((Activity)textview.getContext()).getResources(), bitmap);
 		if (thumbnail != null)
-			textview.setCompoundDrawablesWithIntrinsicBounds(thumbnail , null, null, null);
+			setLeftCompositeDrawableWithFade(textview, thumbnail);
 	}
+    
+    /**
+     * 
+     * 
+     * @param textView
+     * @param drawable
+     */
+    public static void setLeftCompositeDrawableWithFade(final TextView textView, final Drawable drawable) {
+   	 Drawable[] currentDrawables = textView.getCompoundDrawables();
+   	 if (currentDrawables[0] != null)
+   	 {
+		  Drawable[] arrayDrawable = new Drawable[2];
+		  
+		  arrayDrawable[0] = textView.getContext().getResources().getDrawable(R.drawable.image_large);
+		  arrayDrawable[1] = drawable;
+		  
+		  TransitionDrawable transitionDrawable = new TransitionDrawable(arrayDrawable);
+		  transitionDrawable.setCrossFadeEnabled(true);
+		  
+		  transitionDrawable.startTransition(250);
+		  textView.setCompoundDrawablesWithIntrinsicBounds(transitionDrawable, null, null, null);		  
+	 }
+	 else 
+		 textView.setCompoundDrawablesWithIntrinsicBounds(drawable , null, null, null);
+   }
+    
+    /**
+     * 
+     * 
+     * @param imageView
+     * @param drawable
+     */
+    public static void setImageDrawableWithFade(final ImageView imageView, final Drawable drawable) {
+    	 Drawable currentDrawable = imageView.getDrawable();
+    	 
+    	 if (currentDrawable != null) 
+    	 {
+			  Drawable[] arrayDrawable = new Drawable[2];
+			  arrayDrawable[0] = currentDrawable;
+			  arrayDrawable[1] = drawable;
+			  
+			  TransitionDrawable transitionDrawable = new TransitionDrawable(arrayDrawable);
+			  transitionDrawable.setCrossFadeEnabled(true);
+			  
+			  imageView.setImageDrawable(transitionDrawable);
+			  transitionDrawable.startTransition(250);
+    	 }
+    	 else 
+    		  imageView.setImageDrawable(drawable);
+    }
 
     /**
      * Image URL and UI element(s) references to place the image when done loading.
