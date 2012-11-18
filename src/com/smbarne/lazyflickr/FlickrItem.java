@@ -80,12 +80,4 @@ public class FlickrItem implements Serializable {
 	    
 	    return this.mGUID.equals(((FlickrItem)other).getGUID());
 	}
-	
-   /*private void validateState() {
-      validateGUID(mGUID);
-      validateTitle(mTitle);
-      validateThumbURL(mThumbURL);
-      validateImageURL(mImageURL);
-   }*/
-
 }

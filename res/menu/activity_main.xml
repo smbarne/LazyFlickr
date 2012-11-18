@@ -2,7 +2,7 @@
 	
 	<item android:id="@+id/refresh"
 	    android:onClick="onRefreshMenuClick"
-	    android:icon="@drawable/refresh"
+	    android:icon="@drawable/ic_action_refresh"
 	    android:title="@string/refresh_button_text"
 	    android:showAsAction="ifRoom"/>
 
