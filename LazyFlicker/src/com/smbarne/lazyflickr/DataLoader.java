@@ -171,7 +171,7 @@ public class DataLoader implements Serializable
 		{
 			if (items != null)
 			{
-				setData(mItems);
+				setData(items);
 				
 				if (mTagStream != "")
 				{
