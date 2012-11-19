@@ -25,6 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name="com.smbarne.lazyflickr.PagerActivity"></activity>
+        <activity android:name="com.smbarne.lazyflickr.PreferencesActivity"></activity>
     </application>
 
 </manifest>

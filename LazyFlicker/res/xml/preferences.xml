@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (C) 2008 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- This is a primitive example showing the different types of preferences available. -->
+<PreferenceScreen
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+            android:title="@string/category_cache">
+
+   		<EditTextPreference
+	         android:key="max_photos"
+	         android:title="@string/max_photos_title"
+	         android:summary="@string/max_photos_description"
+	         android:inputType="number" 
+	         android:dialogTitle="@string/max_photos_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+            android:title="@string/category_about">
+        <PreferenceScreen
+                android:title="github"
+                android:summary="View LazyFlickr on github">
+
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="https://github.com/smbarne/LazyFlickr" />
+
+        </PreferenceScreen>
+        
+        <PreferenceScreen
+                android:title="About"
+                android:summary="Developed as sample code by Stephen Barnes">
+
+            <intent android:action="android.intent.action.VIEW"
+                    android:data="http://about.me/stephenbarnes" />
+
+        </PreferenceScreen>
+        
+    </PreferenceCategory>
+
+</PreferenceScreen>

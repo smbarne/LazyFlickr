@@ -21,7 +21,7 @@ public class PagerActivity extends SherlockActivity {
         ImageLoader imageLoader = ImageLoader.getInstance();        
         
         LazyPagerAdapter = new LazyViewPagerAdapter(this, imageLoader);
-        mDataLoader.LoadFeed(tags, null, LazyPagerAdapter, null);
+        mDataLoader.LoadFeed(tags, null, LazyPagerAdapter, null, true);
         
         ViewPager vp = (ViewPager)findViewById(R.id.pager);
         vp.setAdapter(LazyPagerAdapter);

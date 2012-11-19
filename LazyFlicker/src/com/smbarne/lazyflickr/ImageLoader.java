@@ -70,6 +70,14 @@ public class ImageLoader {
 		}
 	}
 	
+	public void ClearCache(Boolean memory, Boolean file)
+	{
+		if (memory)
+			mMemoryCache.clear();
+		if (file);
+			Utilities.clearFileCache(cacheDir);
+	}
+	
 	/**
 	 * Load an image to {@link Drawable} of a provided {@link ImageView}.  If the image is in
 	 * memory, it will be set immediately.  If not, a thread will be spawned to load
@@ -263,9 +271,12 @@ public class ImageLoader {
             	
             	if (a != null)
             		a.runOnUiThread(marshaller);
-            }catch(Throwable th){
-                th.printStackTrace();
             }
+            catch(Throwable th){
+                th.printStackTrace();
+                if(th instanceof OutOfMemoryError)
+                    mMemoryCache.clear();
+            	}
         }
         
         /**

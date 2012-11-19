@@ -140,4 +140,16 @@ public class Utilities {
         
         return items;
     }
+    
+    public static void clearFileCache(File path){
+    	if (path != null)
+    	{
+	        File[] files = path.listFiles();
+	        if(files==null)
+	            return;
+	        
+	        for(File f:files)
+	            f.delete();
+    	}
+    }
 }

@@ -25,6 +25,11 @@ public class LazyListViewAdapter extends BaseAdapter {
     	mActivity = activity;
     	mImageLoader = imageLoader;
     }
+    
+    public Activity getActivity()
+    {
+    	return mActivity;
+    }
 
     @Override
     public int getCount()

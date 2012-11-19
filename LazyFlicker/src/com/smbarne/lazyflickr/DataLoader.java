@@ -2,7 +2,10 @@ package com.smbarne.lazyflickr;
 
 import java.io.File;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -11,9 +14,10 @@ import org.w3c.dom.NodeList;
 import com.actionbarsherlock.view.MenuItem;
 import com.smbarne.lazyflickr.R.anim;
 
-import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.preference.PreferenceManager;
 import android.support.v4.view.PagerAdapter;
 import android.view.LayoutInflater;
 import android.view.animation.Animation;
@@ -65,24 +69,37 @@ public class DataLoader implements Serializable
 	 * 
 	 * @param tags	An array of tags to search query Flickr for.
 	 */
-	public void LoadFeed(String[] tags, Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem)
+	public void LoadFeed(String[] tags, Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem, Boolean local)
 	{
 		XMLDataLoader asyncWebLoad = null;
 		String tagstream = Utilities.StringArrayToCSV(tags);	
 	  	File f = new File(cacheDir, tagstream);
+	  	
+		SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(mContext);
+		String temp = sp.getString("max_photos", "100");
+		int max_number_items = Integer.parseInt(temp);
 		
 		if (mMemoryCache.containsKey(tagstream))
-			asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, mMemoryCache.get(tagstream));
+			asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, mMemoryCache.get(tagstream), max_number_items);
 		else
 		{
 			ArrayList<FlickrItem> sd_items =  Utilities.deserializeFlickrItems(mContext, f);
 			if (sd_items.size() > 0)
-				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, sd_items);				
-			else
-				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, null);
+				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, sd_items, max_number_items);
+			else if (!local)
+				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, null, max_number_items);
 		}
 		
-		asyncWebLoad.execute(tags);
+		if (asyncWebLoad != null)
+			asyncWebLoad.execute(tags);
+	}
+	
+	public void ClearCache(Boolean memory, Boolean file)
+	{
+		if (memory)
+			mMemoryCache.clear();
+		if (file);
+			Utilities.clearFileCache(cacheDir);
 	}
 
 	/**
@@ -97,12 +114,14 @@ public class DataLoader implements Serializable
 		private final MenuItem mRefreshItem;
 		ArrayList<FlickrItem> mItems;
 		private String mTagStream = "";
+		private final int mMaxItems;
 	
-		public XMLDataLoader(Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem, ArrayList<FlickrItem> items) {
+		public XMLDataLoader(Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem, ArrayList<FlickrItem> items, int maxItems) {
 			mAdapter = adapter;
 			mPagerAdapter = pagerAdapter;
 			mRefreshItem = refreshItem;
 			mItems = items;
+			mMaxItems = maxItems;
 		}
 		
 		/**
@@ -112,6 +131,9 @@ public class DataLoader implements Serializable
 		 */
 		private void setData(ArrayList<FlickrItem> items)
 		{
+			if (items == null)
+				return;
+			
 			if (mAdapter instanceof LazyListViewAdapter)
 			{
 				LazyListViewAdapter llva = (LazyListViewAdapter)mAdapter;
@@ -194,23 +216,40 @@ public class DataLoader implements Serializable
         	 for (int i = 0; i < itemList.getLength(); i++)
         	 {
         		 Element e = (Element) itemList.item(i);
-        		 
         		 String guid     = parser.getValue(e, FlickrItem.KEY_GUID);
         		 
-        		 if (!items.contains(new FlickrItem(guid, "", "", "")))
+        		 // Don't add the item if we already have it loaded
+        		 if (!items.contains(new FlickrItem(guid, "", null, "", "")))
         		 {
-	        	     String title 	 = parser.getValue(e, FlickrItem.KEY_TITLE); 
+	        	     //Sun, 18 Nov 2012 15:33:38 -0800
+	        	     SimpleDateFormat  sdf = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss Z");
+	        	     Date pubDate = null;
+	        	     
+	        	     try {  
+	        	    	    pubDate = sdf.parse(parser.getValue(e, FlickrItem.KEY_PUBDATE));  
+	        	    	}   catch (java.text.ParseException pe) {
+							pe.printStackTrace();
+						}
+	        	     
+	        	     String title 	 = parser.getValue(e, FlickrItem.KEY_TITLE);        	     
 	        	     String thumbURL = parser.getAttributeValue(e, FlickrItem.KEY_THUMB, 
 	        	    		 FlickrItem.KEY_IMAGE_ATTRIBUTE);
 	        	     String imageURL = parser.getAttributeValue(e, FlickrItem.KEY_IMAGE,
 	        	    		 FlickrItem.KEY_IMAGE_ATTRIBUTE);
 	        	     
 	        	     // Create a new FlickrItem from the processed XML
-	        	     items.add(new FlickrItem(guid, title, thumbURL, imageURL));       
+	        	     items.add(new FlickrItem(guid, title, pubDate, thumbURL, imageURL));       
         		 }
         	     publishProgress((int) ((i / (float) itemList.getLength()) * 100));
         	 }
-	 
+        	 
+        	 // Sort items based on the pubdate field
+        	 Collections.sort(items, new FlickrItem.FlickrItemComparable());
+        	 
+        	 // Cull old items that don't make the cut
+        	 if (mMaxItems < items.size())
+        		 items.subList(mMaxItems, items.size()).clear();
+        	 
 			 return items;
 		}
 	}

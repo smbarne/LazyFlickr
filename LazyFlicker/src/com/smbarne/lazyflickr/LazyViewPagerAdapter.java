@@ -23,6 +23,11 @@ public class LazyViewPagerAdapter extends PagerAdapter  {
     	mImageLoader = imageLoader;
     }
     
+    public Activity getActivity()
+    {
+    	return mActivity;
+    }
+    
     @Override
     public int getCount()
     {

@@ -6,17 +6,9 @@
 	    android:title="@string/refresh_button_text"
 	    android:showAsAction="ifRoom"/>
 	
-	<!-- <ImageView 
-	    android:id="@+id/refresh"
-    	android:layout_width="wrap_content"
-    	android:layout_height="wrap_content"
-    	android:src="@drawable/ic_action_refresh"
-    	android:title="@string/refresh_button_text"
-    	style="@style/Widget.Sherlock.ActionButton"
-    	android:showAsAction="ifRoom" />  -->
-
     <item
         android:id="@+id/menu_settings"
+        android:onClick="onSettingsMenuClick"
         android:orderInCategory="100"
         android:showAsAction="collapseActionView"
         android:title="@string/menu_settings"

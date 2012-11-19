@@ -4,19 +4,13 @@ import com.actionbarsherlock.app.SherlockListActivity;
 import com.actionbarsherlock.view.Menu;
 import com.actionbarsherlock.view.MenuInflater;
 import com.actionbarsherlock.view.MenuItem;
-import com.smbarne.lazyflickr.R.anim;
 import com.smbarne.lazyflickr.R.id;
 
 import android.os.Bundle;
-import android.content.Context;
 import android.content.Intent;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ImageView;
 
 /**
  *  The MainActivity of LazyFlickr. 
@@ -82,19 +76,20 @@ public class MainActivity extends SherlockListActivity {
 		if (item.getItemId() == id.refresh)
             mRefreshItem = item;
 		RefreshData();
-	}  
+	} 
+	
+	public void onSettingsMenuClick(final MenuItem item) {
+		Intent intent = new Intent(this, PreferencesActivity.class);
+		startActivity(intent);
+	}
 	
 	/**
 	 * Reload feed data from Flickr. 
 	 */
 	public void RefreshData()
 	{
-		// Note: To be done after adding ActionBarSherlock or ActionBarCompatability
-    	//MenuItem refresh = (MenuItem)getSupportActionBar().getCustomView().findViewById(R.id.refresh);
-
-		
     	// TODO: adaptable tags from user input		
         String[] tags = {"Boston"};
-        mDataLoader.LoadFeed(tags, LazyListAdapter, null, mRefreshItem);	
+        mDataLoader.LoadFeed(tags, LazyListAdapter, null, mRefreshItem, false);	
 	}
 }

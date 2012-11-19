@@ -9,5 +9,10 @@
     <string name="stub_image_description">Loading Thumbnail</string>
     <string name="item_starting_text">Loading Image&#8230;</string>
     <string name="loading_text">Loading Flickr Feed&#8230;</string>
+    <string name="clear_cache_button">Clear Cached Data</string>
+    <string name="max_photos_title">Max Number of Photos</string>
+    <string name="max_photos_description">Set the maximum number of Flickr photos that can be stored.</string>
+    <string name="category_about">About</string>
+    <string name="category_cache">Photo Cache</string>
 
 </resources>
