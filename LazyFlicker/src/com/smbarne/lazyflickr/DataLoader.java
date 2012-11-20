@@ -71,7 +71,7 @@ public class DataLoader implements Serializable
 	 */
 	public void LoadFeed(String[] tags, Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem, Boolean local)
 	{
-		XMLDataLoader asyncWebLoad = null;
+		XMLDataLoader asyncLoader = null;
 		String tagstream = Utilities.StringArrayToCSV(tags);	
 	  	File f = new File(cacheDir, tagstream);
 	  	
@@ -80,18 +80,18 @@ public class DataLoader implements Serializable
 		int max_number_items = Integer.parseInt(temp);
 		
 		if (mMemoryCache.containsKey(tagstream))
-			asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, mMemoryCache.get(tagstream), max_number_items);
+			asyncLoader = new XMLDataLoader(adapter, pagerAdapter, refreshItem, mMemoryCache.get(tagstream), max_number_items, local);
 		else
 		{
 			ArrayList<FlickrItem> sd_items =  Utilities.deserializeFlickrItems(mContext, f);
 			if (sd_items.size() > 0)
-				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, sd_items, max_number_items);
-			else if (!local)
-				asyncWebLoad = new XMLDataLoader(adapter, pagerAdapter, refreshItem, null, max_number_items);
+				asyncLoader = new XMLDataLoader(adapter, pagerAdapter, refreshItem, sd_items, max_number_items, local);
+			else
+				asyncLoader = new XMLDataLoader(adapter, pagerAdapter, refreshItem, null, max_number_items, local);
 		}
 		
-		if (asyncWebLoad != null)
-			asyncWebLoad.execute(tags);
+		if (asyncLoader != null)
+			asyncLoader.execute(tags);
 	}
 	
 	public void ClearCache(Boolean memory, Boolean file)
@@ -115,13 +115,15 @@ public class DataLoader implements Serializable
 		ArrayList<FlickrItem> mItems;
 		private String mTagStream = "";
 		private final int mMaxItems;
+		private final Boolean mLocal;
 	
-		public XMLDataLoader(Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem, ArrayList<FlickrItem> items, int maxItems) {
+		public XMLDataLoader(Adapter adapter, PagerAdapter pagerAdapter, MenuItem refreshItem, ArrayList<FlickrItem> items, int maxItems, Boolean local) {
 			mAdapter = adapter;
 			mPagerAdapter = pagerAdapter;
 			mRefreshItem = refreshItem;
 			mItems = items;
 			mMaxItems = maxItems;
+			mLocal = local;
 		}
 		
 		/**
@@ -197,6 +199,10 @@ public class DataLoader implements Serializable
 				items = new ArrayList<FlickrItem>();
 			 else
 				items = mItems;
+			 
+			 // If local flag is set, don't attempt an HTTP connection to parse new data
+			 if (mLocal)
+				 return items;
 				
         	 XMLParser parser = new XMLParser();
         	 mTagStream = Utilities.StringArrayToCSV(tags);

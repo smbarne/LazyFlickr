@@ -1,10 +1,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    
+    <item
+	    android:id="@+id/menu_tag_search"
+	    android:showAsAction="always|collapseActionView"
+	    android:title="@string/tag_search_hint"
+	    android:actionViewClass="@layout/collapsible_edittext"
+	    android:icon="@drawable/ic_action_menu_search"
+	    android:orderInCategory="1"/>
 	
 	<item android:id="@+id/refresh"
 	    android:onClick="onRefreshMenuClick"
 	    android:icon="@drawable/ic_action_refresh"
 	    android:title="@string/refresh_button_text"
-	    android:showAsAction="ifRoom"/>
+	    android:showAsAction="ifRoom"
+	    android:orderInCategory="5"/>
 	
     <item
         android:id="@+id/menu_settings"
@@ -13,5 +22,6 @@
         android:showAsAction="collapseActionView"
         android:title="@string/menu_settings"
         android:icon="@drawable/settings"/>
+    
     
 </menu>

@@ -10,13 +10,60 @@
         android:layout_height="wrap_content" >
     </ListView>
     
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/emptySearchView"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="top|center"
+        android:minHeight="200dp"
+        android:minWidth="200dp"
+        android:orientation="vertical"
+        android:visibility="gone" >
+    
+	    <TextView
+	        android:id="@+id/emptySearchTextView"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="5dp"
+	        android:layout_marginTop="15dp"
+	        android:gravity="center"
+	        android:text="@string/empty_search_text"
+	        android:textSize="20sp"
+	        android:textStyle="bold"
+	        android:typeface="sans" />
+	
+	    <EditText
+	        android:id="@+id/emptySearchEditText"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:ems="10"
+	        android:imeOptions="actionSearch"
+	        android:inputType="text" >
+	
+	        <requestFocus />
+	    </EditText>
+	    
+	    <Button 
+	        android:id="@+id/emptySearchButton"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:contentDescription="@string/tag_search_hint"
+	        android:text="@string/tag_search_hint"
+	        android:onClick="onEmptySearchDone"
+	        />
+
+	</LinearLayout>
+    <!-- android:id="@+id/empty_loading_text" -->
     <TextView
-        android:id="@android:id/empty"
+        
+        android:id="@id/android:empty"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
         android:text="@string/loading_text"
-        android:textSize="24sp" >
+        android:textSize="24sp"
+        android:visibility="gone" >
 
 	</TextView>
 

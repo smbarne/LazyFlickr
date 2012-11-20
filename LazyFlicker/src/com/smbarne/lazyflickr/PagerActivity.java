@@ -28,6 +28,7 @@ public class PagerActivity extends SherlockActivity {
         vp.setCurrentItem(position);
         
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(tags[0]);
     }
   
     @Override

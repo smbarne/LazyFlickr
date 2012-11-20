@@ -14,5 +14,7 @@
     <string name="max_photos_description">Set the maximum number of Flickr photos that can be stored.</string>
     <string name="category_about">About</string>
     <string name="category_cache">Photo Cache</string>
+    <string name="tag_search_hint">Search Tags</string>
+    <string name="empty_search_text">Search Flickr for Some Tags!</string>
 
 </resources>

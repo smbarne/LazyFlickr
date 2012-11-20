@@ -1,6 +1,8 @@
 package com.smbarne.lazyflickr;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 
 import com.actionbarsherlock.app.SherlockPreferenceActivity;
@@ -36,5 +38,8 @@ public class PreferencesActivity extends SherlockPreferenceActivity {
 	 {
 		 ImageLoader.getInstance().ClearCache(true, true);
 		 DataLoader.getInstance().ClearCache(true, true);
+		 
+		 SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this.getApplicationContext());
+         sp.edit().putString("tagString", "").commit();
 	 }
 }
